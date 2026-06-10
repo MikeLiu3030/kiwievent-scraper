@@ -1,0 +1,91 @@
+<section class="py-16">
+  <div class="container mx-auto px-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+      
+      <!-- 左侧：主要内容区域 (占 2 列) -->
+      <div class="lg:col-span-2">
+        
+        <!-- 分类、标题、简介 -->
+        <div class="mb-6">
+          <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80 mb-4 text-sm">
+            health
+          </div>
+          <h1 class="text-4xl md:text-5xl font-bold mb-4 text-balance">
+            Weekday Morning Runs Hobsonville
+          </h1>
+          <p class="text-xl text-muted-foreground mb-6 text-pretty">
+            Experience positive, empowering weekday runs with the Early Bird Run Crew in Hobsonville. Free, 60-minute sessions open to all ages—connect with locals and get
+          </p>
+        </div>
+
+        <!-- 活动图片 -->
+        <div class="rounded-lg overflow-hidden mb-8">
+          <img alt="Weekday Morning Runs Hobsonville" loading="lazy" width="800" height="450" decoding="async" data-nimg="1" class="w-full h-auto object-cover" sizes="800px" srcset="..." src="..." style="color: transparent;">
+        </div>
+
+        <!-- 活动描述 -->
+        <div class="event-description text-muted-foreground leading-relaxed">
+          <h2>About This Weekday Run</h2>
+          <p>Members of the Early Bird Run Crew often share how these weekday runs kickstart their day with a surge of energy and positivity... (内容省略)</p>
+          <!-- 更多段落和列表 -->
+        </div>
+      </div>
+
+      <!-- 右侧：侧边栏 (占 1 列) -->
+      <div class="lg:col-span-1">
+        <div data-slot="card" class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm sticky top-24">
+          
+          <!-- 卡片头部 -->
+          <div data-slot="card-header" class="@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6">
+            <div data-slot="card-title" class="leading-none font-semibold">Event Details</div>
+          </div>
+
+          <!-- 卡片内容 -->
+          <div data-slot="card-content" class="px-6 space-y-6">
+            
+            <!-- 日期和时间 -->
+            <div class="flex items-start gap-3">
+              <svg class="lucide lucide-calendar ...">...</svg>
+              <div class="space-y-2">
+                <div>
+                  <div class="font-medium">Wednesday, 13 May 2026</div>
+                  <div class="text-sm text-muted-foreground flex items-center gap-1">
+                    <svg class="lucide lucide-clock ...">...</svg>6:00 am
+                  </div>
+                </div>
+                <!-- 重复多个日期块 -->
+              </div>
+            </div>
+
+            <!-- 地点（地址图片） -->
+            <div class="flex items-start gap-3">
+              <svg class="lucide lucide-map-pin ...">...</svg>
+              <div class="w-[350px]">
+                <img alt="Full event address" width="350" height="auto" class="mt-1" src="/api/events/weekday-morning-runs-hobsonville/address" style="min-width: 350px; max-width: 350px;">
+              </div>
+            </div>
+
+            <!-- 价格 -->
+            <div class="flex items-start gap-3">
+              <svg class="lucide lucide-dollar-sign ...">...</svg>
+              <div>Free</div>
+            </div>
+
+            <!-- 目标人群 -->
+            <div class="flex items-start gap-3">
+              <svg class="lucide lucide-users ...">...</svg>
+              <div>
+                <div class="flex flex-wrap gap-2">
+                  <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ...">All Ages</div>
+                </div>
+                <div class="text-sm text-muted-foreground">Targeted age groups</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>

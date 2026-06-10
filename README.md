@@ -1,93 +1,55 @@
-# KiwiEvent-scraper
+# kiwiEvent-scraper
 
+An efficient, robust, and fully automated web scraping and data persistence pipeline for New Zealand event aggregation platforms (e.g., "What's On" style websites). 
 
+Built with Python using a modular component design, this application automatically extracts multi-tier event data (**Region ➔ City ➔ Event ➔ Dates**), cleanses raw HTML payloads, and syncs data to a remote relational MySQL database. It also includes an asynchronous backup mechanism that exports data to local JSON files appended with high-precision timestamps for disaster recovery.
 
-## Getting started
+## 🚀 Key Features
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+- **Deep Hierarchical Data Crawling**: Automatically establishes data dependency chains from Regions to Cities down to individual Events. Employs pattern recognition within loops to filter out navigational placeholders and statistical widget cards.
+- **Modern Frontend Shield Bypassing**:
+  - *CDN High-Res Image Unboxing*: Decouples Next.js image optimization routes (which impose `w` width and `q` quality limitations) to securely parse and reconstruct the original, uncompressed, permanently valid raw CDN source URLs.
+  - *Dynamic Address Reverse Engineering*: Bypasses lazy-loaded interactive UI elements (where complete addresses load only when clicked via an image API). By predicting endpoints algorithmically using URL strings (`/api/events/{slug}/address`), the scraper cuts out heavy browser automation frameworks like Selenium or Playwright, maintaining a lightweight footprint and maximum speed.
+- **Enterprise-Grade Database Normalization**:
+  - *One-to-Many Structural Splitting*: Events with multiple recurring schedules or floating time slots are normalized. High-frequency date data is isolated into a child table, enabling seamless object-relational mapping (ORM) in downstream frameworks (e.g., C# EF Core navigation properties and fast LINQ `Where`/`OrderBy` range filtering).
+  - *Rich Text Capture*: Retains the full semantic styling of event briefs. Instead of stripping descriptions into plain text, it captures the raw underlying HTML nodes via `.decode_contents()`, allowing complex tags (`<ul>`, `<li>`, `<p>`) to render natively on the frontend web application.
+  - *Database-Level Automated Timestamps*: Leverages database-native triggers (`DEFAULT CURRENT_TIMESTAMP`) for `created_at`, resolving multi-device or distributed clock synchronization anomalies without adding overhead to the Python logic.
+- **Strict Transactional & Resource Safety**: Implements Python's `@contextmanager` pattern coupled with `with` blocks to govern active database connections. Operates on an "all-or-nothing" transactional approach that instantly invokes a `rollback()` on exceptions, ensuring zero database pollution or orphan records on unexpected terminations.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## 🛠️ Prerequisites & Dependencies
 
-## Add your files
+- **Python Version**: Python 3.8 or higher (Virtual environment setup is highly recommended).
+- **Database System**: MySQL 5.7.
+- **Core Third-Party Frameworks**:
+  - `requests`: Manages secure, resilient stateful HTTP sessions.
+  - `beautifulsoup4`: Extracts and navigates structured DOM elements.
+  - `lxml`: A highly performant, C-optimized HTML parser backend engine.
+  - `mysql-connector-python`: The official, thread-safe database driver for MySQL storage engine communications.
+- **Database configuture file**:  
+```bash
+DB_CONFIG = {
+    'host': "",
+    'port': ,            
+    'user': "",  
+    'password': "",
+    'database': "",
+}
+``` 
+  
+## 💻 Quick Start
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
-
+### 1. Access the Project Directory
+Open your terminal (PowerShell, CMD, or Terminal on Unix) and navigate to the project root directory:
+```bash
+cd D:\WORK\kiwisquare\kiwiEvent-scraper
+# A. Create the virtual isolation sandbox
+python -m venv venv
+# B. Activate the environment (Windows PowerShell)
+.\venv\Scripts\Activate
+# For Linux / macOS systems, use:
+source venv/bin/activate
+# C. Set up all the libraries
+pip install requirements.txt
+# D. run script
+python app.py
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/hliu159/kiwievent-scraper.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-* [Set up project integrations](https://gitlab.com/hliu159/kiwievent-scraper/-/settings/integrations)
-
-## Collaborate with your team
-
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
