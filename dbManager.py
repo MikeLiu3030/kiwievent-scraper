@@ -144,6 +144,46 @@ def import_json_to_mysql(json_file_path:str) -> None:
     
 
 
+def insert_eventbrite_events(events: List[Dict[str, Any]]) -> None:
+    with get_db_connection() as conn:
+        cursor = conn.cursor(buffered=True)
+        insert_count = 0
+        skip_count = 0
 
+        for event in events:
+            title = event.get('title')
+            if not title:
+                continue
+
+            # Check if the event already exists (use link as unique identifier)
+            cursor.execute(
+                "SELECT id FROM event_eventbrite WHERE event_detail_link = %s",
+                (event.get('event_detail_link'),)
+            )
+            if cursor.fetchone():
+                skip_count += 1
+                continue
+
+            cursor.execute(
+                """INSERT INTO event_eventbrite
+                (title, category, image_url, address, price, event_detail_link, circle)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+                (
+                    title,
+                    event.get('category'),
+                    event.get('image_url'),
+                    event.get('address'),
+                    event.get('price'),
+                    event.get('event_detail_link'),
+                    event.get('circle'),
+                )
+            )
+            insert_count += 1
+
+        logger.info("=== 📥 Eventbrite Data entry report ===")
+        logger.info(f"✨ New events inserted: {insert_count}")
+        logger.info(f"⏭️  Skipped (already exists): {skip_count}")
+        logger.info("=======================================")
+        cursor.close()
 
 
