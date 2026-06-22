@@ -6,10 +6,10 @@ import random
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 from logger import logger
+from ai_cleaner import clean_event_duration, clean_rough_location
 
 def scrape_eventbrite():
     url = "https://www.eventbrite.co.nz/d/new-zealand/events/"
-
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         page = browser.new_page(viewport={'width': 1280, 'height': 4000})
@@ -18,10 +18,23 @@ def scrape_eventbrite():
         page.wait_for_selector("section.discover-vertical-event-card", timeout=15000)
         page.wait_for_load_state("networkidle", timeout=15000)
         html = page.content()
-        browser.close()
 
-    logger.info("Page loaded, starting to parse...")
-    return html
+        # Parse events from listing page first
+        events = parse_events(html)
+        logger.info(f"Starting to scrape {len(events)} event detail pages...")
+
+        # Visit each event detail page
+        for i, event in enumerate(events):
+            logger.info(f"Scraping detail page {i+1}/{len(events)}: {event['title']}")
+            event_time_raw, address_raw = scrape_event_detail(page, event['event_detail_link'])  
+            event['event_time_raw'] = event_time_raw
+            event['address_raw'] = address_raw
+            event['circle'] = clean_event_duration(event_time_raw)
+            event['rough_location'] = clean_rough_location(address_raw)
+            time.sleep(1)  # Avoid sending too many requests too fast
+
+        browser.close()
+    return events
 
     
 def parse_events(html):
@@ -95,11 +108,32 @@ def parse_events(html):
     return list(deduplicated.values())
 
 
+def scrape_event_detail(page, url):
+    """Scrape time and address from an event detail page."""
+    try:
+        page.goto(url)
+        page.wait_for_selector('time', timeout=10000)
+        html = page.content()
+        soup = BeautifulSoup(html, 'lxml')
+        
+        # Get raw time string
+        time_tag = soup.find('time')
+        event_time_raw = time_tag.get_text(strip=True) if time_tag else 'N/A'
+
+        # Get raw address string
+        venue_tag = soup.find('a', {'data-testid': 'event-venue'})
+        address_raw = venue_tag.get_text(strip=True) if venue_tag else 'N/A'
+
+        return event_time_raw, address_raw
+
+    except Exception as e:
+        logger.error(f"Error scraping detail page {url}: {e}")
+        return 'N/A', 'N/A'
+        
 
 def run_eventbrite_scraper():
     try:
-        html = scrape_eventbrite()
-        events = parse_events(html)
+        events = scrape_eventbrite()
 
         for event in events:
             logger.info(f"Title: {event['title']}")
@@ -107,6 +141,10 @@ def run_eventbrite_scraper():
             logger.info(f"Venue: {event['address']}")
             logger.info(f"Location: {event['city']}")
             logger.info(f"Price: {event['price']}")
+            logger.info(f"Time Raw: {event['event_time_raw']}")
+            logger.info(f"Address Raw: {event['address_raw']}")
+            logger.info(f"Duration: {event['circle']}")
+            logger.info(f"Rough Location: {event['rough_location']}")
             logger.info(f"Link: {event['event_detail_link']}")
             logger.info("---")
 
