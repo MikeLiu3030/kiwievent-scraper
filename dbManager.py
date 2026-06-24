@@ -166,8 +166,8 @@ def insert_eventbrite_events(events: List[Dict[str, Any]]) -> None:
 
             cursor.execute(
                 """INSERT INTO event_eventbrite
-                (title, category, image_url, address, price, event_detail_link, circle, event_time_raw, rough_location)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                (title, category, image_url, address, price, event_detail_link, circle, event_time_raw, rough_location, description_html)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
                 (
                     title,
                     event.get('category'),
@@ -178,6 +178,7 @@ def insert_eventbrite_events(events: List[Dict[str, Any]]) -> None:
                     event.get('circle'),
                     event.get('event_time_raw'),
                     event.get('rough_location'),
+                    event.get('description_html'),
                 )
             )
             insert_count += 1

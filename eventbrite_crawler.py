@@ -26,9 +26,10 @@ def scrape_eventbrite():
         # Visit each event detail page
         for i, event in enumerate(events):
             logger.info(f"Scraping detail page {i+1}/{len(events)}: {event['title']}")
-            event_time_raw, address_raw = scrape_event_detail(page, event['event_detail_link'])  
+            event_time_raw, address_raw, description_html = scrape_event_detail(page, event['event_detail_link'])
             event['event_time_raw'] = event_time_raw
             event['address_raw'] = address_raw
+            event['description_html'] = description_html
             event['circle'] = clean_event_duration(event_time_raw)
             event['rough_location'] = clean_rough_location(address_raw)
             time.sleep(1)  # Avoid sending too many requests too fast
@@ -124,11 +125,15 @@ def scrape_event_detail(page, url):
         venue_tag = soup.find('a', {'data-testid': 'event-venue'})
         address_raw = venue_tag.get_text(strip=True) if venue_tag else 'N/A'
 
-        return event_time_raw, address_raw
+        # Get full description HTML
+        overview_tag = soup.find('div', {'data-testid': 'section-wrapper-overview'})
+        description_html = str(overview_tag) if overview_tag else 'N/A'
+
+        return event_time_raw, address_raw, description_html
 
     except Exception as e:
         logger.error(f"Error scraping detail page {url}: {e}")
-        return 'N/A', 'N/A'
+        return 'N/A', 'N/A', 'N/A'
         
 
 def run_eventbrite_scraper():
@@ -143,6 +148,7 @@ def run_eventbrite_scraper():
             logger.info(f"Price: {event['price']}")
             logger.info(f"Time Raw: {event['event_time_raw']}")
             logger.info(f"Address Raw: {event['address_raw']}")
+            logger.info(f"Description HTML: {event['description_html'][:100]}...")
             logger.info(f"Duration: {event['circle']}")
             logger.info(f"Rough Location: {event['rough_location']}")
             logger.info(f"Link: {event['event_detail_link']}")
