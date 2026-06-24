@@ -6,6 +6,7 @@ from dbManager import import_json_to_mysql, insert_eventbrite_events
 from event_crawler import run_event_crawler
 from jsonManager import save_data_to_json
 from eventbrite_crawler import run_eventbrite_scraper
+from geocoding_worker import geocoding_worker
 
 def main():
     try:
@@ -17,13 +18,15 @@ def main():
         # start crawling data
         data = run_event_crawler(base_url)
 
-
         if data:
             # Store data to a json file
             filepath = save_data_to_json(data)
                
             # Store data to a database from json file.
             import_json_to_mysql(filepath)
+
+            # Start geocoding...
+            geocoding_worker()
             
         else:
             logger.info("\nUnsuccessful!!!!!!!!")

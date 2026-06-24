@@ -80,8 +80,8 @@ def import_json_to_mysql(json_file_path:str) -> None:
                         cursor.execute(
                         """INSERT INTO event_events
                         (city_id, title, category, description_html, main_image_url,
-                        full_address_image_url, price, target_groups, event_detail_link, circle, rough_location)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                        full_address_image_url, price, target_groups, event_detail_link, circle, rough_location, detail_location)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
                         (
                             city_id, 
                             event_title, 
@@ -93,7 +93,8 @@ def import_json_to_mysql(json_file_path:str) -> None:
                             event.get('target_groups'), 
                             event.get('event_detail_link'),
                             event.get('circle'),
-                            event.get('rough_location')
+                            event.get('rough_location'),
+                            event.get('detail_address')
                         )
                         )
                         event_id = cursor.lastrowid
@@ -188,5 +189,48 @@ def insert_eventbrite_events(events: List[Dict[str, Any]]) -> None:
         logger.info(f"⏭️  Skipped (already exists): {skip_count}")
         logger.info("=======================================")
         cursor.close()
+
+def get_detail_location_from_events() -> List[Dict[str, Any]] | None:
+    
+    sql = """
+        SELECT id, detail_location
+        FROM event_events
+        WHERE latitude IS NULL 
+          AND longitude IS NULL
+          AND detail_location IS NOT NULL
+          AND TRIM(DETAIL_LOCATION) != ''
+    """
+    try: 
+        with get_db_connection() as conn:
+            cursor = conn.cursor(buffered=True, dictionary=True)
+            cursor.execute(sql)
+            res = cursor.fetchall()
+            return res if res else None
+    except Exception as e:
+        logger.error(f"Extract data failure: {e}")
+        return None
+        
+
+def batch_update_event_coordinates(events_coordinates:List[Dict[str, Any]]) -> bool:
+    """
+    event_coordinates: [(latitude, longitude, id), (latitude, longitude, id)]
+    """
+    sql = """
+        UPDATE event_events
+        SET latitude = %s,
+            longitude = %s
+        WHERE id = %s
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor(buffered=True)
+            cursor.executemany(sql, events_coordinates)
+            conn.commit()
+            logger.info(f"Successfully Update! {cursor.rowcount} items event coordinates!")
+            return True
+    except Exception as e:
+        logger.error(f"The batch update of the database failed!: {e}", exc_info=True)
+        return False
+
 
 

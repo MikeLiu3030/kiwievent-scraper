@@ -1,4 +1,6 @@
 # event_crawler.py
+import re
+
 import requests
 import time
 import random
@@ -9,6 +11,8 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin, parse_qs, unquote, urlparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from logger import logger
+
+
 # Create global Session and configure automatic retry.
 session = requests.Session()
 retry_strategy = Retry(
@@ -20,6 +24,46 @@ session.mount("https://", HTTPAdapter(max_retries=retry_strategy))
 session.headers.update({
     "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 })
+
+
+
+
+# Get the detail address from a url
+def get_detail_address_from_url(url) -> str | None:  
+    try:
+        response = session.get(url, timeout=10)
+        if response.status_code != 200:
+            logger.warning(f"Failure download the address SVG: STATUS CODE: {response.status_code}")
+            return "N/A"
+        
+        svg_text = response.text
+
+        soup = BeautifulSoup(svg_text, 'xml')
+        text_tags = soup.find_all('tspan')
+        if not text_tags:
+            text_tags = soup.find_all('text')
+        cleaned_segments = []
+
+        if text_tags:
+            for tag in text_tags:
+                t_clean = tag.get_text().strip()
+                if t_clean and not any(char in t_clean for char in ['{', '}', ';', 'attr']):
+                    cleaned_segments.append(t_clean)
+        else:
+            return 'N/A'
+        
+        if cleaned_segments:
+            final_address = ", ".join(cleaned_segments)
+            final_address = re.sub(r',\s*,', ',', final_address)
+            final_address = final_address.replace("&amp;", "&")
+            return final_address.strip()
+        return None
+                
+    except Exception as e:
+        logger.error(f"Occur an error:{e}",exc_info=True)
+        return None
+
+
 
 # parse original image url
 def parse_original_image_url(img_src):
@@ -63,6 +107,7 @@ def get_full_event_details(detail_url):
 
         dates = []
         full_address_image_url = "N/A"
+        detail_address = "N/A"
         price = "N/A"
         target_groups = ""
 
@@ -92,6 +137,11 @@ def get_full_event_details(detail_url):
                     if slug:
                         generated_api_path = f"/api/events/{slug}/address"
                         full_address_image_url = urljoin("https://www.whats-on.co.nz", generated_api_path)
+                        
+                        # get the detail address
+                        detail_address = get_detail_address_from_url(full_address_image_url)
+
+
 
                 # c. Handle price
                 elif 'lucide-dollar-sign' in svg_class:
@@ -109,6 +159,7 @@ def get_full_event_details(detail_url):
             "dates":dates, # this data is an list[].
             "price":price,
             "full_address_image_url":full_address_image_url,
+            "detail_address":detail_address,
             "target_groups":target_groups
         }          
     except Exception as e:
