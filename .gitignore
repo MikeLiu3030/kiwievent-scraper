@@ -15,7 +15,6 @@ env/
 *.db
 *.sqlite3
 migrations/
-db_config.py
 what's_on_events*
 jsonDataFile/
 what'son.sql
