@@ -34,6 +34,8 @@ DB_CONFIG = {
     'password': "",
     'database': ""
   }
+GEOCODING_API="" # Google geocoding API
+OPENAI_API_KEY="" # OpenAI API KEY
 ``` 
 ## 🐳 Local Nominatim Setup (Docker)
 
