@@ -32,9 +32,44 @@ DB_CONFIG = {
     'port': ,            
     'user': "",  
     'password': "",
-    'database': "",
-}
+    'database': ""
+  }
 ``` 
+## 🐳 Local Nominatim Setup (Docker)
+
+This project integrates with a local Docker instance of `nominatim_nz` for high-performance, offline-capable reverse geocoding and address resolution within New Zealand. 
+
+### Prerequisites
+- Docker & Docker Compose installed on your host machine.
+- Sufficient RAM allocated to Docker (minimum 8GB recommended for NZ dataset).
+
+### Installation & Startup
+
+1. **Pull and Run the Container**  
+   Execute the following command to start the Nominatim NZ service in detached mode:
+  ```bash
+   docker run -d \
+     --name nominatim_nz \
+     -p 8080:8080 \
+     -v nominatim_data:/var/lib/postgresql/14/main \
+     --restart unless-stopped \
+     your-dockerhub-username/nominatim_nz:latest
+  ```
+  **Note:** Replace your-dockerhub-username/nominatim_nz:latest with your actual Docker image name/tag, and adjust the port 8080 if your host requires a different mapping.
+  
+2. **Verify Service Health**
+  Wait for the database to fully load (this may take a few minutes depending on your hardware). Check the container logs to ensure it's ready:
+  ```bash
+  docker logs -f nominatim_nz
+  ```
+  You should see a message indicating the web server (Apache/Nginx) is running and accepting requests.
+  
+
+3. **Test the API Endpoint**
+    Confirm the service is responding correctly:
+  ```bash
+   curl "http://localhost:8080/search.php?q=Auckland&format=json"
+  ```
   
 ## 💻 Quick Start
 
